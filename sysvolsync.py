@@ -128,7 +128,7 @@ class SyncThing(object):
                 apikey = self.apikey
             data = requests.get('http://127.0.0.1:%s/rest/%s' % (self.apiport,path), headers={'X-API-Key':apikey}, proxies={'http':None,'https':None})
             try:
-                return json.loads(data.content or 'none')
+                return json.loads(data.content or '{}')
             except:
                 logger.critical('Error in data : %s for path %s' % (data.content,path))
                 raise
@@ -144,7 +144,7 @@ class SyncThing(object):
                 apikey = self.apikey
             result = requests.post('http://127.0.0.1:%s/rest/%s' % (self.apiport,path), data=json.dumps(data), headers={'X-API-Key':apikey}, proxies={'http':None,'https':None})
             try:
-                return json.loads(result.content or 'none')
+                return json.loads(result.content or '{}')
             except:
                 logger.critical('Error in data : %s for path %s' % (result.content,path))
                 raise

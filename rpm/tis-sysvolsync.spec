@@ -1,21 +1,19 @@
 %define _topdir   .
 %define buildroot ./builddir
-
-
+%define sysvolsync_version %(python ../sysvolsync.py -V)
 
 Name:	tis-sysvolsync
-Version:	0.1
+Version:    %(sysvolsync_version)
 Release:	1%{?dist}
 Summary:	Sysvol sync for samba4
 BuildArch:	x86_64
 
-Group:	        System Environment/Daemons
+Group:      System Environment/Daemons
 License:	GPL
 URL:		http://dev.tranquil.it
 Source0:	../
 Prefix:		/opt
 
-# python-flask and python-dns are not packaged in centos5/xenserver 6.5
 Requires:  samba,python-requests, python-lxml, python-ldap, procps, ldb-tools
 
 # Turn off the brp-python-bytecompile script
@@ -49,7 +47,6 @@ rsync -aP ../../templates/config.xml.template  %{buildroot}/opt/tis-sysvolsync/t
 %attr(755,root,root)/usr/lib/systemd/system/
 
 %pre
-
 
 
 %post

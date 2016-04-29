@@ -81,11 +81,6 @@ def samba_domain_info(ads_ip = '127.0.0.1'):
 class SyncThing(object):
 
     def __init__(self,config_filename = r'/opt/tis-sysvolsync/data/config.xml'):
-        try:
-            self.myip = subprocess.check_output('ip -4 a | grep -oP "(?<=inet\s)(.*)(?=/.*global)"',shell=True).strip()
-        except:
-            self.myip = subprocess.check_output('ip -4 a | grep -oP "(?<=inet\s)(.*)(?=/.*global)"',shell=True).strip()
-
         self.config_filename = config_filename
         self.read_syncthing_config()
 
@@ -93,10 +88,12 @@ class SyncThing(object):
         self.id = self.get_syncthing_id()
 
         logger.info('ID : %s' % self.id)
-        logger.info('IP : %s' % self.myip)
         logger.info('api port : %s' % self.apiport)
         logger.info('api key : %s' % self.apikey)
         logger.info('data port : %s' % self.dataport)
+
+    def generate_apikey(self):
+
 
     def read_syncthing_config(self):
         xmldata = open(self.config_filename).read()
@@ -107,7 +104,6 @@ class SyncThing(object):
 
     def get_syncthing_config(self):
         return dict(
-            ip = self.myip,
             id = self.id,
             apikey = self.apikey,
             apiport = self.apiport,

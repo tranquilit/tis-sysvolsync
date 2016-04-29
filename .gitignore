@@ -60,3 +60,9 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+/data
+/deb/*.deb
+/deb/builddir
+/.svn
+/.stfolder
+/.stignore

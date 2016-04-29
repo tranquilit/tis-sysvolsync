@@ -1,0 +1,10 @@
+/var/log/sysvolsync.log {
+        weekly
+        missingok
+        rotate 7
+        postrotate
+                systemctl restart tis-sysvolacl > /dev/null
+        endscript
+        compress
+        notifempty
+}

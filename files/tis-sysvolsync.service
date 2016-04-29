@@ -1,0 +1,15 @@
+[Unit]
+Description=Samba4 sysvol sync with syncthing
+Documentation=http://docs.syncthing.net/
+After=network.target
+Wants=syncthing-inotify@.service
+
+[Service]
+User=root
+ExecStart=/opt/tis-sysvolsync/bin/syncthing -no-browser -no-restart -logflags=0 -home=/opt/tis-sysvolsync/data
+Restart=on-failure
+SuccessExitStatus=3 4
+RestartForceExitStatus=3 4
+
+[Install]
+WantedBy=multi-user.target

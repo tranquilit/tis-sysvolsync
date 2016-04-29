@@ -92,7 +92,14 @@ class SyncThing(object):
         logger.info('api key : %s' % self.apikey)
         logger.info('data port : %s' % self.dataport)
 
+
     def generate_apikey(self):
+        # todo
+        self.apikey = os.urandom(32).encode("base64")[:-2]
+        xmldata = open(self.config_filename).read()
+        config = etree.parse(StringIO(xmldata))
+        config.xpath('/configuration/gui/apikey')[0].text = self.apikey
+        open(self.config_filename,'wb').write(config)
 
 
     def read_syncthing_config(self):

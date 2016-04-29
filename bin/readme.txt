@@ -1,0 +1,1 @@
+Put here the syncthing amd64 binary

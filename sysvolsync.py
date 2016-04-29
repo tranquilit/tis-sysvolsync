@@ -57,7 +57,6 @@ import shutil
 
 logger = logging.getLogger('sysvol-fixacl')
 
-
 def samba_domain_info(ads_ip = '127.0.0.1'):
     """Return a dict of domain infos given IP of domain controller"""
     rawinfos = subprocess.check_output('samba-tool domain info %s' % ads_ip,shell=True)
@@ -87,19 +86,25 @@ class SyncThing(object):
         # need apikey for that...
         self.id = self.get_syncthing_id()
 
+        if self.apikey == 'gkJ9e76WoQVLAKmPjXLlyrydNX3Hctxy':
+            self.generate_apikey()
+
+
         logger.info('ID : %s' % self.id)
         logger.info('api port : %s' % self.apiport)
         logger.info('api key : %s' % self.apikey)
         logger.info('data port : %s' % self.dataport)
 
-
     def generate_apikey(self):
         # todo
+        oldkey = self.apikey[:]
         self.apikey = os.urandom(32).encode("base64")[:-2]
         xmldata = open(self.config_filename).read()
         config = etree.parse(StringIO(xmldata))
         config.xpath('/configuration/gui/apikey')[0].text = self.apikey
-        open(self.config_filename,'wb').write(config)
+        config.write(self.config_filename,encoding='utf8',pretty_print=True)
+        current_key = self.syncthing_rest_get('system/config',apikey='')['gui']['apiKey']
+        return self.syncthing_rest_post('system/restart',apikey=current_key)
 
 
     def read_syncthing_config(self):
@@ -117,20 +122,32 @@ class SyncThing(object):
             dataport = self.dataport,
             )
 
-    def syncthing_rest_get(self,path):
+    def syncthing_rest_get(self,path,apikey=None):
         try:
-            data = requests.get('http://127.0.0.1:%s/rest/%s' % (self.apiport,path), headers={'X-API-Key':self.apikey}, proxies={'http':None,'https':None})
-            return json.loads(data.content)
+            if apikey is None:
+                apikey = self.apikey
+            data = requests.get('http://127.0.0.1:%s/rest/%s' % (self.apiport,path), headers={'X-API-Key':apikey}, proxies={'http':None,'https':None})
+            try:
+                return json.loads(data.content)
+            except:
+                logger.critical('Error in data : %s for path %s' % (data.content,path))
+                raise
         except requests.HTTPError as e:
             print('Syncthing service can not be contacted. Check if it is running\n  ie.  "systemctl status tis-sysvolsync"')
             logger.critical("%s"%e)
             raise
 
 
-    def syncthing_rest_post(self,path,data=''):
+    def syncthing_rest_post(self,path,data='',apikey=None):
         try:
-            result = requests.post('http://127.0.0.1:%s/rest/%s' % (self.apiport,path), data=json.dumps(data), headers={'X-API-Key':self.apikey}, proxies={'http':None,'https':None})
-            return result.content
+            if apikey is None:
+                apikey = self.apikey
+            result = requests.post('http://127.0.0.1:%s/rest/%s' % (self.apiport,path), data=json.dumps(data), headers={'X-API-Key':apikey}, proxies={'http':None,'https':None})
+            try:
+                return json.loads(result.content)
+            except:
+                logger.critical('Error in data : %s for path %s' % (result.content,path))
+                raise
         except requests.HTTPError as e:
             print('Syncthing service can not be contacted. Check if it is running\n  ie.  "systemctl status tis-sysvolsync"')
             logger.critical("%s"%e)

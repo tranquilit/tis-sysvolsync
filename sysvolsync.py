@@ -291,32 +291,6 @@ def get_drs_connections(dn='dc=touvet,dc=lan'):
 
     ntds = ldif.ParseLDIF(StringIO(subprocess.check_output('%sldbsearch -b %s -H /var/lib/samba/private/sam.ldb --cross-ncs  "(objectClass=ntdsconnection)" dn fromServer cn name distinguishedName' %
         (ldb_modules,dn) ,shell=True)))
-    """# record 1
-    dn: CN=45bc272a-650d-41c1-a2b6-e1bd9723d81e,CN=NTDS Settings,CN=SRVADS2,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=touvet,DC=lan
-    fromServer: CN=NTDS Settings,CN=SRVADS1,CN=Servers,CN=Default-First-Site-Name,
-     CN=Sites,CN=Configuration,DC=touvet,DC=lan
-
-    # record 2
-    dn: CN=97ecb859-44ca-4fd7-95b3-8ded9f51ee2a,CN=NTDS Settings,CN=SRVADS1,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=touvet,DC=lan
-    fromServer: CN=NTDS Settings,CN=SRVADS2,CN=Servers,CN=Default-First-Site-Name,
-     CN=Sites,CN=Configuration,DC=touvet,DC=lan
-
-    # returned 2 records
-    # 2 entries
-    # 0 referrals
-    """
-    """
-        [('CN=45bc272a-650d-41c1-a2b6-e1bd9723d81e,CN=NTDS Settings,CN=SRVADS2,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=touvet,DC=lan',
-          {'cn': ['45bc272a-650d-41c1-a2b6-e1bd9723d81e'],
-           'distinguishedName': ['CN=45bc272a-650d-41c1-a2b6-e1bd9723d81e,CN=NTDS Settings,CN=SRVADS2,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=touvet,DC=lan'],
-           'fromServer': ['CN=NTDS Settings,CN=SRVADS1,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=touvet,DC=lan'],
-           'name': ['45bc272a-650d-41c1-a2b6-e1bd9723d81e']}),
-         ('CN=97ecb859-44ca-4fd7-95b3-8ded9f51ee2a,CN=NTDS Settings,CN=SRVADS1,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=touvet,DC=lan',
-          {'cn': ['97ecb859-44ca-4fd7-95b3-8ded9f51ee2a'],
-           'distinguishedName': ['CN=97ecb859-44ca-4fd7-95b3-8ded9f51ee2a,CN=NTDS Settings,CN=SRVADS1,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=touvet,DC=lan'],
-           'fromServer': ['CN=NTDS Settings,CN=SRVADS2,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=touvet,DC=lan'],
-           'name': ['97ecb859-44ca-4fd7-95b3-8ded9f51ee2a']})]
-    """
     result = []
     for (connection_dn,connection) in ntds:
         from_server = extract_ntds_server_name(connection['fromServer'][0])
@@ -379,17 +353,8 @@ def main():
             ),indent=True)
 
     if action == 'configure':
-        # get replication topology from local AD using ldbsearch
-        #
-        # check if config.xml is OK.
-        """
-        syncthing_config_fn = os.path.join(os.path.dirname(__file__), 'data','config.xml')
-        if not os.path.isfile(syncthing_config_fn):
-            template_fn = os.path.join(os.path.dirname(__file__),'templates','config.xml.template')
-            shutil.copyfile(template_fn,syncthing_config_fn)
-        """
+        # get replication topology from local AD using ldbsearch and add mutual sysvol sync
         syncthing.check_config_loaded()
-
         try:
             domain_info = samba_domain_info()
             print domain_info
@@ -414,8 +379,6 @@ def main():
                 syncthing.add_mutual_sysvol_sync(local_dc,remote_dc)
         print('Reload syncthing process')
         syncthing.check_config_loaded()
-        #add_remote_server('TJF6WIV-ZJIFAEJ-2IPHYL4-4NKHYVI-LLHB2JK-QOCQFZ2-5OQRYGY-MCWIQQY',address='tcp://192.168.149.214:22000',name='srvads1.touvet.lan')
-        #add_remote_server('JRWBLB4-TYAYL4K-OTZKQJX-IXPN3A4-J3QANXO-IQT23U2-TWG554K-VORXJQK',address='tcp://192.168.149.221:22000',name='srvads2.touvet.lan')
 
     if action == 'watch':
         syncthing.check_config_loaded()

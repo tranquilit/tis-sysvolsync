@@ -40,8 +40,3 @@ Syncthing
 Tested on syncthing >= 0.12.22
 
 
--- 
-Hubert TOUVET
-Tranquil IT Systems
-02 40 97 57 57
-

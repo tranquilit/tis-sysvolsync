@@ -67,3 +67,5 @@ target/
 /.stfolder
 /.stignore
 /bin/syncthing
+/deb/syncthing
+/deb/syncthing.tar.gz

@@ -25,6 +25,10 @@ chmod 755 ./builddir/opt/tis-sysvolsync/*.py
 
 cp ../templates/config.xml.template ./builddir/opt/tis-sysvolsync/templates
 
+wget -O syncthing.tar.gz https://github.com/syncthing/syncthing/releases/download/v0.12.22/syncthing-linux-arm64-v0.12.22.tar.gz 
+tar --strip-components=1 --wildcards -xvzf syncthing.tar.gz "syncthing*/syncthing" 
+cp syncthing ../bin/syncthing
+
 cp ../bin/syncthing  ./builddir/opt/tis-sysvolsync/bin/
 chmod 755 ./builddir/opt/tis-sysvolsync/bin/syncthing
 
@@ -35,8 +39,3 @@ cp ../files/logrotate.sysvolsync ./builddir/etc/logrotate.d/sysvolsync
 
 dpkg-deb --build builddir tis-sysvolsync-${VERSION}.deb
 
-echo "== Copie du .deb sur le serveur tisdeb =="
-rsync -azP *.deb root@srvinstallation.tranquil.it:/var/www/srvinstallation/tisdeb/binary
-
-echo "== Scan du répertoire =="
-ssh root@srvinstallation.tranquil.it /var/www/srvinstallation/tisdeb/updateRepo.sh

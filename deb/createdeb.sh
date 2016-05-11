@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-VERSION=$(python ../sysvolsync.py -V)
+VERSION=$(grep -o  -P "(?<=__version__ = ').*(?=')" ../sysvolsync.py)
 
 rm -f *.deb
 rm -Rf builddir

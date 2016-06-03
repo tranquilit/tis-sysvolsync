@@ -3,7 +3,7 @@
 %define sysvolsync_version %(python ../sysvolsync.py -V)
 
 Name:	tis-sysvolsync
-Version:    %(sysvolsync_version)
+Version:    %(python ../sysvolsync.py -V)
 Release:	1%{?dist}
 Summary:	Sysvol sync for samba4
 BuildArch:	x86_64

@@ -269,7 +269,7 @@ class SyncThing(object):
     def add_mutual_sysvol_sync(self,local_hostname,remote_hostname,folderid='sysvol',localpath='/var/lib/samba/sysvol'):
         """Connect with SSH to remote ADS to add localhost sysvol and get syncthing ID and config"""
         print('Connecting to %s using SSH to add myself as remote devide, add sysvol sync and get syncthing configuration...'% remote_hostname)
-        remote_jsonconfig = subprocess.check_output('ssh %s python /opt/tis-sysvolsync/sysvolsync.py -ldebug -f /var/log/sysvolbind.log add-remote %s %s tcp://%s:%s' % (
+        remote_jsonconfig = subprocess.check_output('ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no %s python /opt/tis-sysvolsync/sysvolsync.py -ldebug -f /var/log/sysvolbind.log add-remote %s %s tcp://%s:%s' % (
                 remote_hostname,self.id,local_hostname,local_hostname,self.dataport),shell=True)
         remote_syncthing_config = json.loads(remote_jsonconfig)
         print("Adding remote server : %s with key '%s'" % (remote_hostname,remote_syncthing_config['id']))
@@ -292,7 +292,7 @@ def setloglevel(loglevel):
 def get_remote_syncthing_config(host):
     """Connect with SSH to remote ADS to get syncthing ID"""
     print('Connecting to %s using SSH to get remote syncthing sync configuration...'% host)
-    jsonconfig = subprocess.check_output('ssh %s python /opt/tis-sysvolsync/sysvolsync.py info' % host,shell=True)
+    jsonconfig = subprocess.check_output('ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no %s python /opt/tis-sysvolsync/sysvolsync.py info' % host,shell=True)
     return json.loads(jsonconfig)
 
 

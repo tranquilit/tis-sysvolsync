@@ -14,7 +14,7 @@ URL:		http://dev.tranquil.it
 Source0:	../
 Prefix:		/opt
 
-Requires:  samba,python-requests, python-lxml, python-ldap, procps, ldb-tools
+Requires:  python-requests, python-lxml, python-ldap, procps
 
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')

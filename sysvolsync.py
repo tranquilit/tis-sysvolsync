@@ -37,7 +37,7 @@ Usage : %s [options] <action>
                 example:  add-remote AAAA-BBBB-CCC srvads2.test.lan tcp://srvads2.test.lan:22001
 """
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 import sys
 import os

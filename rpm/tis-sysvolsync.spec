@@ -10,7 +10,7 @@ BuildArch:	x86_64
 
 Group:      System Environment/Daemons
 License:	GPL
-URL:		http://dev.tranquil.it
+URL:		https://www.tranquil.it
 Source0:	../
 Prefix:		/opt
 

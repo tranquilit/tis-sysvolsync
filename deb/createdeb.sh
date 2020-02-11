@@ -24,8 +24,7 @@ cp ../sysvolsync.py  ./builddir/opt/tis-sysvolsync/
 chmod 755 ./builddir/opt/tis-sysvolsync/*.py
 
 cp ../templates/config.xml.template ./builddir/opt/tis-sysvolsync/templates
-
-wget -O syncthing.tar.gz http://archive.syncthing.net/v0.12.22/syncthing-linux-amd64-v0.12.22.tar.gz
+wget -O syncthing.tar.gz https://github.com/syncthing/syncthing/releases/download/v$VERSION/syncthing-linux-amd64-v$VERSION.tar.gz
 tar --strip-components=1 --wildcards -xvzf syncthing.tar.gz "syncthing*/syncthing"
 cp syncthing ../bin/syncthing
 

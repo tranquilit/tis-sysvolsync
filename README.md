@@ -10,14 +10,14 @@ The standard sysvol sync'ing technology on Microsoft is based on DFS-R which is
 not currently implemented in Samba. This synchronisation method is not compatible
 with DFS-R.
 
-Tested on Debian 8 and CentOS 7. Packages available at the url below.
+Tested on Debian 9 and CentOS 7. Packages available at the url below.
 
 For more information : http://dev.tranquil.it/index.php/TIS-SysvolSync
 
 Licensing
 =========
 
-Copyright: Tranquil It Systems http://www.tranquil-it-systems.fr/
+Copyright: Tranquil It Systems https://www.tranquil.it
 License: GPL v3.0
 
 The repository contains source code or binary (under the directory /lib/)
@@ -37,6 +37,4 @@ Python Environment
 
 Syncthing
 ---------
-Tested on syncthing >= 0.12.22
-
-
+Tested on syncthing v1.3.0

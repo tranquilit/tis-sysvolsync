@@ -4,8 +4,8 @@ Section: base
 Priority: optional
 Architecture: amd64
 Depends: python-requests, python-lxml, python-ldap, libc6, procps
-Maintainer: Tranquil-IT-Systems <admin@tranquil-it-systems.fr>
+Maintainer: Tranquil-IT  <packages@tranquil.it>
 Description: Install a sync process for samba4 sysvol directory using syncthing tool.
    Fix ACL on sysvol upon completion of sysvol sync
    Get connections with other ADS using DRS objects in AD.
-Homepage: http://www.tranquil-it-systems.fr
+Homepage: https://www.tranquil.it

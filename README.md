@@ -10,7 +10,7 @@ The standard sysvol sync'ing technology on Microsoft is based on DFS-R which is
 not currently implemented in Samba. This synchronisation method is not compatible
 with DFS-R.
 
-Tested on Debian 9 and CentOS 7. Packages available at the url below.
+Tested on Debian 11. Packages available at the url below.
 
 For more information : http://dev.tranquil.it/index.php/TIS-SysvolSync
 
@@ -30,11 +30,11 @@ Components of TIS-SysvolSync
 Python Environment
 ------------------
 
-* Python 2.7.10
-* Python 2.7 Requests
-* Python 2.7 ldap
-* Python 2.7 lxml
+* Python 3.9.2
+* Python 3.9 Requests
+* Python 3.9 ldap
+* Python 3.9 lxml
 
 Syncthing
 ---------
-Tested on syncthing v1.3.0
+Tested on syncthing v1.18.6

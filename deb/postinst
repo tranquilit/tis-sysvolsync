@@ -7,7 +7,6 @@ systemctl enable tis-sysvolsync
 systemctl enable tis-sysvolacl
 
 echo Starting daemons
-systemctl start tis-sysvolsync
-systemctl start tis-sysvolacl
+systemctl start tis-sysvolsync tis-sysvolacl
 
 exit 0

@@ -6,7 +6,7 @@ Wants=tis-sysvolsync.service
 
 [Service]
 User=root
-ExecStart=/usr/bin/python /opt/tis-sysvolsync/sysvolsync.py -f /var/log/sysvolsync.log watch
+ExecStart=/usr/bin/python3 /opt/tis-sysvolsync/sysvolsync.py -f /var/log/sysvolsync.log watch
 Restart=on-failure
 SuccessExitStatus=3 4
 RestartForceExitStatus=3 4

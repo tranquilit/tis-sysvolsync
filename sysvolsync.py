@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------
 #    This file is part of tis-sysvolsync
@@ -37,7 +37,7 @@ Usage : %s [options] <action>
                 example:  add-remote AAAA-BBBB-CCC srvads2.test.lan tcp://srvads2.test.lan:22001
 """
 
-__version__ = '1.3.0'
+__version__ = '1.18.6'
 
 import sys
 import os
@@ -49,13 +49,33 @@ import logging
 from lxml import etree
 import logging
 from optparse import OptionParser
-import ldif
-from  StringIO import StringIO
+from io import StringIO
 import re
-from collections import MappingView
+from collections.abc import MappingView
 import shutil
+import base64
+import getpass
+import ldb
+from samba.auth import system_session
+from samba.credentials import Credentials
+from samba.dcerpc import security
+from samba.dcerpc.security import dom_sid
+from samba.ndr import ndr_pack, ndr_unpack
+from samba.param import LoadParm
+from samba.samdb import SamDB
+from samba.netcmd.user import GetPasswordCommand
+import optparse
+import samba.getopt as options
+
 
 logger = logging.getLogger('sysvol-fixacl')
+
+# Instanciation de samba
+lp = LoadParm()
+creds = Credentials()
+creds.guess(lp)
+samdb = SamDB(url='/var/lib/samba/private/sam.ldb', session_info=system_session(),credentials=creds, lp=lp)
+
 
 def samba_domain_info(ads_ip = '127.0.0.1'):
     """Return a dict of domain infos given IP of domain controller"""
@@ -70,7 +90,7 @@ def samba_domain_info(ads_ip = '127.0.0.1'):
     Client site      : Default-First-Site-Name
     """
     result = {}
-    for l in rawinfos.splitlines():
+    for l in rawinfos.decode('utf-8').splitlines():
         if ':' in l:
             key,value = l.split(':',2)
             result[key.strip()] = value.strip()
@@ -98,7 +118,7 @@ class SyncThing(object):
     def generate_apikey(self):
         # todo
         oldkey = self.apikey[:]
-        self.apikey = os.urandom(32).encode("base64")[:-2]
+        self.apikey = base64.b64encode(os.urandom(32)).decode("utf-8")[:-2]
         xmldata = open(self.config_filename).read()
         config = etree.parse(StringIO(xmldata))
         config.xpath('/configuration/gui/apikey')[0].text = self.apikey
@@ -216,7 +236,8 @@ class SyncThing(object):
                 readOnly = False,
                 ignorePerms = True,
                 autoNormalize= True,
-                rescanIntervalS = 60,
+                rescanIntervalS = 0,
+                fsWatcherEnabled = True,
                 ))
             logger.debug('Adding folder %s with devices %s' % (folderid,remote_devices))
             updated = True
@@ -269,7 +290,7 @@ class SyncThing(object):
     def add_mutual_sysvol_sync(self,local_hostname,remote_hostname,folderid='sysvol',localpath='/var/lib/samba/sysvol'):
         """Connect with SSH to remote ADS to add localhost sysvol and get syncthing ID and config"""
         print('Connecting to %s using SSH to add myself as remote devide, add sysvol sync and get syncthing configuration...'% remote_hostname)
-        remote_jsonconfig = subprocess.check_output('ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no %s python /opt/tis-sysvolsync/sysvolsync.py -ldebug -f /var/log/sysvolbind.log add-remote %s %s tcp://%s:%s' % (
+        remote_jsonconfig = subprocess.check_output('ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no %s python3 /opt/tis-sysvolsync/sysvolsync.py -ldebug -f /var/log/sysvolbind.log add-remote %s %s tcp://%s:%s' % (
                 remote_hostname,self.id,local_hostname,local_hostname,self.dataport),shell=True)
         remote_syncthing_config = json.loads(remote_jsonconfig)
         print("Adding remote server : %s with key '%s'" % (remote_hostname,remote_syncthing_config['id']))
@@ -292,7 +313,7 @@ def setloglevel(loglevel):
 def get_remote_syncthing_config(host):
     """Connect with SSH to remote ADS to get syncthing ID"""
     print('Connecting to %s using SSH to get remote syncthing sync configuration...'% host)
-    jsonconfig = subprocess.check_output('ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no %s python /opt/tis-sysvolsync/sysvolsync.py info' % host,shell=True)
+    jsonconfig = subprocess.check_output('ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no %s python3 /opt/tis-sysvolsync/sysvolsync.py info' % host,shell=True)
     return json.loads(jsonconfig)
 
 
@@ -308,13 +329,13 @@ def get_drs_connections(dn='dc=touvet,dc=lan'):
         ldb_modules = 'LDB_MODULES_PATH=/usr/lib64/samba/ldb/ '
     else:
         ldb_modules = ''
-
-    ntds = ldif.ParseLDIF(StringIO(subprocess.check_output('%sldbsearch -b %s -H /var/lib/samba/private/sam.ldb --cross-ncs  "(objectClass=ntdsconnection)" dn fromServer cn name distinguishedName' %
-        (ldb_modules,dn) ,shell=True)))
+    query = "(objectClass=ntdsconnection)"
+    ntds = list(samdb.search(base=str(samdb.get_root_basedn()), expression=query, scope=ldb.SCOPE_SUBTREE,attrs=["dn","fromServer","cn","name","distinguishedName"],controls=["search_options:1:2"]))
     result = []
-    for (connection_dn,connection) in ntds:
-        from_server = extract_ntds_server_name(connection['fromServer'][0])
-        to_server = extract_ntds_server_name(connection_dn)
+
+    for connection in ntds:
+        from_server = str(connection['fromServer'][0]).split(",")[1].split('=')[1]
+        to_server = str(connection['distinguishedName'][0]).split(",")[2].split('=')[1]
         result.append((from_server,to_server))
     return result
 
@@ -328,7 +349,7 @@ def main():
     (options,args) = parser.parse_args()
 
     if options.getversion:
-        print __version__,
+        print(__version__)
         sys.exit(0)
 
     if not options.logfilename:
@@ -352,7 +373,7 @@ def main():
         action = args[0]
 
     if action == 'info':
-        print json.dumps(syncthing.get_syncthing_config(),indent=True)
+        print(json.dumps(syncthing.get_syncthing_config(),indent=True))
 
     if action == 'add-remote':
         logger.debug(args)
@@ -364,20 +385,20 @@ def main():
         syncthing.check_config_loaded()
         syncthing.add_sysvol(remote_devices = [args[1],])
         syncthing.check_config_loaded()
-        print json.dumps(syncthing.get_syncthing_config(),indent=True)
+        print(json.dumps(syncthing.get_syncthing_config(),indent=True))
 
     if action == 'status':
-        print json.dumps(dict(
+        print(json.dumps(dict(
             sysvol = syncthing.get_folder_status('sysvol'),
             connections = syncthing.get_connections(),
-            ),indent=True)
+            ),indent=True))
 
     if action == 'configure':
         # get replication topology from local AD using ldbsearch and add mutual sysvol sync
         syncthing.check_config_loaded()
         try:
             domain_info = samba_domain_info()
-            print domain_info
+            print(domain_info)
         except Exception as e:
             print('Local domain information can not be retrieved. Is samba started and configfured ?')
             logger.critical('%s' % e)

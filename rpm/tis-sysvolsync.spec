@@ -14,7 +14,7 @@ URL:		https://www.tranquil.it
 Source0:	../
 Prefix:		/opt
 
-Requires:  python3-requests, python3-lxml, python3-ldap, procps
+Requires:  python3-requests, python3-lxml, procps
 
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')

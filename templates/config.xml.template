@@ -1,4 +1,4 @@
-<configuration version="12">
+<configuration version="36">
     <gui enabled="true" tls="false">
         <address>127.0.0.1:8385</address>
         <apikey>gkJ9e76WoQVLAKmPjXLlyrydNX3Hctxy</apikey>

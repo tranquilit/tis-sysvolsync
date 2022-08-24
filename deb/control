@@ -3,7 +3,7 @@ Version: VERSION
 Section: base
 Priority: optional
 Architecture: amd64
-Depends: libc6, procps, python3-lxml
+Depends: libc6, procps, python3-lxml, python3-requests
 Maintainer: Tranquil-IT  <packages@tranquil.it>
 Description: Install a sync process for samba4 sysvol directory using syncthing tool.
    Fix ACL on sysvol upon completion of sysvol sync

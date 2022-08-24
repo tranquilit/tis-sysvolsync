@@ -1,9 +1,9 @@
 %define _topdir   .
 %define buildroot ./builddir
-%define sysvolsync_version %(python ../sysvolsync.py -V)
+%define sysvolsync_version %(python3 ../sysvolsync.py -V)
 
 Name:	tis-sysvolsync
-Version:    %(python ../sysvolsync.py -V)
+Version:    %(python3 ../sysvolsync.py -V)
 Release:	1%{?dist}
 Summary:	Sysvol sync for samba4
 BuildArch:	x86_64
@@ -32,10 +32,13 @@ mkdir -p %{buildroot}/etc/tis-sysvolsync/
 
 mkdir -p %{buildroot}/usr/lib/systemd/system/
 
+
+
 rsync -aP ../../sysvolsync.py  %{buildroot}/opt/tis-sysvolsync/
 rsync -aP ../../bin/  %{buildroot}/opt/tis-sysvolsync/bin/
 rsync -aP ../../files/tis-sysvol*.service  %{buildroot}/usr/lib/systemd/system/
 rsync -aP ../../templates/config.xml.template  %{buildroot}/opt/tis-sysvolsync/templates/
+
 
 %files
 
@@ -51,3 +54,8 @@ rsync -aP ../../templates/config.xml.template  %{buildroot}/opt/tis-sysvolsync/t
 
 %post
 [ -f /opt/tis-sysvolsync/data/config.xml ] || cp /opt/tis-sysvolsync/templates/config.xml.template /opt/tis-sysvolsync/data/config.xml
+sed -i 's/<configuration version=.*/<configuration version="36">/' /opt/tis-sysvolsync/data/config.xml
+sed -i '/https:\/\/relays.syncthing.net/d' /opt/tis-sysvolsync/data/config.xml
+
+
+

@@ -2,6 +2,11 @@
 echo Creates basic config file for syncthing
 [ -f /opt/tis-sysvolsync/data/config.xml ] || cp /opt/tis-sysvolsync/templates/config.xml.template /opt/tis-sysvolsync/data/config.xml
 
+echo replace some values
+sed -i 's/<configuration version=.*/<configuration version="36">/' /opt/tis-sysvolsync/data/config.xml
+sed -i '/https:\/\/relays.syncthing.net/d' /opt/tis-sysvolsync/data/config.xml
+
+
 echo Enable daemons
 systemctl enable tis-sysvolsync
 systemctl enable tis-sysvolacl
